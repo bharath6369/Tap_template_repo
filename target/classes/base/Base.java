@@ -1,0 +1,81 @@
+
+    import org.openqa.selenium.OutputType;
+    import org.openqa.selenium.TakesScreenshot;
+    import org.openqa.selenium.WebDriver;
+    import org.openqa.selenium.chrome.ChromeDriver;
+    import org.apache.commons.io.FileUtils;
+
+    import java.io.File;
+    import java.io.IOException;
+    import java.text.SimpleDateFormat;
+    import java.util.Date;
+
+    public class TestClass {
+        private static final String SCREENSHOT_FOLDER = "screenshots/";
+
+        public void endTest(boolean testResult) {
+            WebDriver driver = null;
+
+            try {
+                // Initialize the WebDriver
+                System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+                driver = new ChromeDriver();
+
+                // Check if the test case passed
+                if (testResult) {
+                    // Perform actions for a passed test case
+                    System.out.println("Test case passed!");
+
+                    // Capture a screenshot
+                    captureScreenshot(driver, "pass");
+
+                } else {
+                    // Perform actions for a failed test case
+                    System.out.println("Test case failed!");
+
+                    // Capture a screenshot
+                    captureScreenshot(driver, "fail");
+                }
+            } catch (Exception e) {
+                // Handle any exceptions that occur during the process
+                System.out.println("An error occurred while ending the test: " + e.getMessage());
+            } finally {
+                // Quit the WebDriver
+                if (driver != null) {
+                    driver.quit();
+                }
+            }
+        }
+
+        private void captureScreenshot(WebDriver driver, String filename) {
+            try {
+                // Convert WebDriver instance to TakesScreenshot
+                TakesScreenshot screenshot = (TakesScreenshot) driver;
+
+                // Capture screenshot as a file
+                File screenshotFile = screenshot.getScreenshotAs(OutputType.FILE);
+
+                // Create the screenshot directory if it doesn't exist
+                File screenshotDir = new File(SCREENSHOT_FOLDER);
+                if (!screenshotDir.exists()) {
+                    screenshotDir.mkdirs();
+                }
+
+                // Generate a timestamp for the screenshot filename
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+                String timestamp = dateFormat.format(new Date());
+
+                // Build the complete screenshot file path
+                String filePath = SCREENSHOT_FOLDER + filename + "_" + timestamp + ".png";
+
+                // Save the screenshot file
+                File destFile = new File(filePath);
+                FileUtils.copyFile(screenshotFile, destFile);
+
+                System.out.println("Screenshot captured: " + destFile.getAbsolutePath());
+            } catch (IOException e) {
+                System.out.println("Failed to capture screenshot: " + e.getMessage());
+            }
+        }
+    }
+    
